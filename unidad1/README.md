@@ -28,13 +28,15 @@ siempre a una persona. Restricciones del contexto: presupuesto de PyME, datos se
 
 ## Modelo elegido
 
-**Llama 3.3 70B Instruct (Meta), modelo de pesos abiertos, servido por la API de Groq**
-(`llama-3.3-70b-versatile`). Motivos resumidos: costo por token muy bajo y nivel gratuito para el
-prototipo; pesos abiertos que permiten migrar a un despliegue propio si la clínica necesita que
-ningún dato salga de su infraestructura; y posibilidad futura de ajuste fino (LoRA), algo que un
-modelo cerrado no ofrece. La justificación completa frente a un modelo cerrado (Gemini vía Google
-AI Studio) está en el informe. El id del modelo puede cambiarse sin tocar el código con la variable
-`GROQ_MODEL_NAME` en `.env`.
+**gpt-oss-120b (OpenAI), modelo de pesos abiertos bajo licencia Apache 2.0, servido por la API
+de Groq** (`openai/gpt-oss-120b`, mezcla de expertos con 117 mil millones de parámetros totales y
+5,1 mil millones activos por token). Motivos resumidos: nivel gratuito y costo por token muy bajo
+para el prototipo; pesos abiertos que permiten migrar a un despliegue propio (entra en una sola GPU
+de 80 GB) si la clínica necesita que ningún dato salga de su infraestructura; y posibilidad futura
+de ajuste fino (LoRA), algo que un modelo cerrado no ofrece. Llama 3.3 70B fue la primera opción,
+pero Groq lo retiró del plan gratuito el 16/08/2026. La justificación completa frente a un modelo
+cerrado (Gemini vía Google AI Studio) está en el informe. El id del modelo puede cambiarse sin tocar
+el código con la variable `GROQ_MODEL_NAME` en `.env`.
 
 ## Estrategia de adaptación
 
@@ -93,6 +95,6 @@ unidad1/
     └── providers/
         ├── base_provider.py     # contrato: generate(prompt) -> str, nombre_modelo
         ├── factory.py           # get_provider(name) según MODEL_PROVIDER
-        ├── groq_provider.py     # Llama 3.3 70B vía Groq (temperatura 0,2)
+        ├── groq_provider.py     # gpt-oss-120b vía Groq (temperatura 0,2, razonamiento bajo)
         └── gemini_provider.py   # alternativa cerrada de la plantilla (no usada)
 ```

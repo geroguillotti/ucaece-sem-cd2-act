@@ -6,4 +6,4 @@ Codespaces bajo `.devcontainer/<unidad>/`.
 
 | Unidad | Actividad | Carpeta |
 |---|---|---|
-| 1 | Asistente de primera respuesta para una clínica odontológica con Llama 3.3 70B (Groq) y few-shot prompting | [`unidad1/`](unidad1/README.md) |
+| 1 | Asistente de primera respuesta para una clínica odontológica con gpt-oss-120b (pesos abiertos, vía Groq) y few-shot prompting | [`unidad1/`](unidad1/README.md) |

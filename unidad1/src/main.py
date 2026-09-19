@@ -12,6 +12,7 @@ src/prompt_templates.py.
 """
 
 import os
+import time
 from datetime import datetime, timezone
 
 from dotenv import load_dotenv
@@ -25,6 +26,9 @@ MODEL_PROVIDER_ENV_VAR = "MODEL_PROVIDER"
 EVIDENCIAS_FILE_PATH = "evidencias.md"
 CAMPO_DERIVACION = "Derivar a humano"
 CAMPO_INTENCION = "Intención"
+# El nivel gratuito de Groq limita los tokens por minuto (8.000 TPM para gpt-oss-120b);
+# cada consulta usa ~1.500 tokens, así que se espacian las llamadas para no superar el límite.
+PAUSA_ENTRE_CONSULTAS_SEGUNDOS = 15
 
 # Técnica de prompting elegida y justificada en la consigna 3: few-shot con rol,
 # políticas del negocio y salida estructurada.
@@ -98,6 +102,8 @@ def main() -> None:
 
     resultados = []
     for numero, consulta in enumerate(CONSULTAS_DE_EJEMPLO, start=1):
+        if numero > 1:
+            time.sleep(PAUSA_ENTRE_CONSULTAS_SEGUNDOS)
         consulta_segura, prompt, respuesta = ejecutar_consulta(provider, consulta)
         resultados.append((consulta_segura, prompt, respuesta))
         print(f"[{numero}] Mensaje: {consulta_segura}\n{respuesta}\n")
