@@ -1,174 +1,98 @@
-# Unidad 1 — Foundation Models: prompt engineering + PEFT
+# Unidad 1: Asistente de primera respuesta para una clínica odontológica
 
-Plantilla base para el componente práctico (consignas 6 a 10) del Trabajo Práctico
-Individual de la Unidad 1, Seminario de Ciencia de Datos II. Este README explica cómo
-completar tu entrega individual a partir de esta plantilla.
+**Entrega individual de Geronimo Guillotti** · Seminario de Ciencia de Datos II · Licenciatura en
+Ciencia de Datos (CAECE) · 2do cuatrimestre 2026.
 
-> Las consignas 1 a 5 (caso de uso, elección de Foundation Model, estrategia de
-> adaptación, hardware, esquema del flujo) se responden en un documento aparte (Word/PDF)
-> y no generan código. Este repositorio cubre exclusivamente la parte ejecutable
-> (consignas 6 a 10). Ver el texto completo en [`docs/actividad-unidad1.md`](docs/actividad-unidad1.md).
+Este directorio contiene el componente práctico (consignas 6 a 10) de la Actividad Formativa 1.
+El diseño conceptual (consignas 1 a 5) está en el informe entregado por el campus. Se partió de
+la plantilla de la cátedra, cuyas instrucciones originales quedaron en
+[`docs/README_plantilla_catedra.md`](docs/README_plantilla_catedra.md).
 
-## 1. Elegí tu rama de trabajo
+## Caso de uso
 
-Según lo que hayas justificado en la consigna 2 y 3:
+Una clínica odontológica pequeña (caso hipotético, nombres ficticios) recibe por WhatsApp y web
+chat decenas de mensajes diarios: pedidos de turno, urgencias por dolor o traumatismos, consultas
+por precios y obras sociales, horarios y reclamos. El asistente lee cada mensaje y devuelve una
+salida estructurada para que la recepción resuelva más rápido:
 
-| Consigna 2 (modelo) | Consigna 3 (adaptación) | Qué usás en este repo |
-|---|---|---|
-| Modelo cerrado (Gemini) | Prompt engineering | `src/main.py` con `MODEL_PROVIDER=gemini` |
-| Modelo de pesos abiertos (Groq) | Prompt engineering | `src/main.py` con `MODEL_PROVIDER=groq` |
-| Modelo de pesos abiertos | PEFT (LoRA/QLoRA) | `notebooks/notebook_peft.ipynb` en Google Colab |
-| Cualquiera | Full fine-tuning | No se implementa acá (excede el hardware gratuito). Implementá la rama PEFT como aproximación factible y dejá esa limitación explicitada en tu informe. |
+```
+Intención: <turno | urgencia | precio_cobertura | horario_ubicacion | reclamo | otro>
+Urgencia: <alta | media | baja>
+Derivar a humano: <sí | no>
+Respuesta sugerida: <borrador cordial en español rioplatense, sin diagnósticos>
+```
 
-## 2. Preparar el entorno (consigna 6)
+La recepcionista revisa el borrador antes de enviarlo; las urgencias y los reclamos se derivan
+siempre a una persona. Restricciones del contexto: presupuesto de PyME, datos sensibles de salud
+(Ley 25.326), latencia de pocos segundos y español rioplatense.
 
-Este repositorio agrupa varias unidades, cada una con su propio entorno. Por eso, para
-crear el Codespace **no uses el botón de un clic** ("Create codespace on main"): hay que
-elegir explícitamente la configuración de Unidad 1.
+## Modelo elegido
 
-1. Desde este repositorio en GitHub, hacé clic en **Use this template** (o forkealo).
-2. En tu copia, andá a **Code → Codespaces** y hacé clic en los **tres puntos ("...")**
-   junto al botón verde → **New with options**.
-3. En el campo **Dev container configuration**, elegí **unidad1-seminario-cd2** y
-   confirmá con **Create codespace**.
-4. Esperá a que termine de levantar el Codespace (instala las dependencias de
-   `requirements.txt` automáticamente, no hace falta ningún paso manual). La terminal se
-   abre directamente parada en la carpeta `unidad1/`.
-5. Verificá que Python esté disponible corriendo:
+**Llama 3.3 70B Instruct (Meta), modelo de pesos abiertos, servido por la API de Groq**
+(`llama-3.3-70b-versatile`). Motivos resumidos: costo por token muy bajo y nivel gratuito para el
+prototipo; pesos abiertos que permiten migrar a un despliegue propio si la clínica necesita que
+ningún dato salga de su infraestructura; y posibilidad futura de ajuste fino (LoRA), algo que un
+modelo cerrado no ofrece. La justificación completa frente a un modelo cerrado (Gemini vía Google
+AI Studio) está en el informe. El id del modelo puede cambiarse sin tocar el código con la variable
+`GROQ_MODEL_NAME` en `.env`.
+
+## Estrategia de adaptación
+
+**Prompt engineering avanzado: few-shot prompting con instrucciones de rol y salida
+estructurada** (`src/prompt_templates.py`). El prompt fija el rol del asistente, las políticas de
+la clínica, el formato exacto de salida y seis ejemplos resueltos, uno por cada tipo de mensaje.
+No se modifica ningún parámetro del modelo: la adaptación vive íntegramente en el prompt, lo que
+permite cambiar políticas (horarios, coberturas, precios) en minutos y sin reentrenar. Además,
+antes de enviar cada mensaje se enmascaran teléfonos, DNI y correos (`src/privacidad.py`).
+
+## Cómo ejecutar
+
+1. **Entorno.** En GitHub: *Code → Codespaces → "..." → New with options → Dev container
+   configuration: `unidad1-seminario-cd2`*. La terminal abre en `unidad1/` con las dependencias
+   ya instaladas. Verificar con `python3 --version`. Para correr en una máquina propia:
+   `python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`.
+2. **API key.** Crear una key gratuita en [console.groq.com/keys](https://console.groq.com/keys)
+   y guardarla en un archivo `.env` (nunca en el código ni en el repositorio; `.env` ya está en
+   `.gitignore`):
    ```bash
-   python3 --version
+   cp .env.example .env
+   # editar .env: MODEL_PROVIDER=groq y GROQ_API_KEY=<tu key>
    ```
-
-## 3. Obtener tu API key (consigna 7)
-
-Según el modelo que hayas elegido en la consigna 2:
-
-- **Gemini (modelo cerrado):** creá una key gratuita en
-  [Google AI Studio](https://aistudio.google.com/app/apikey).
-- **Groq (modelo de pesos abiertos):** creá una key gratuita en
-  [console.groq.com](https://console.groq.com/keys).
-
-Luego, en la terminal del Codespace (ya parada en `unidad1/`):
-
-```bash
-cp .env.example .env
-```
-
-Editá `.env` y completá:
-
-```env
-MODEL_PROVIDER=groq      # o "gemini", según tu elección
-GROQ_API_KEY=tu-key-aca
-GEMINI_API_KEY=tu-key-aca
-```
-
-Solo necesitás completar la key del proveedor que vayas a usar. **Nunca subas el
-archivo `.env` al repositorio** (ya está excluido en `.gitignore`).
-
-## 4. Instalar dependencias (consigna 8)
-
-Ya se instalan solas al crear el Codespace (`postCreateCommand` en
-`.devcontainer/unidad1/devcontainer.json`, en la raíz del repositorio). Si necesitás
-reinstalarlas manualmente:
-
-```bash
-pip install -r requirements.txt
-```
-
-## 5. Ejecutar la rama de prompt engineering (consigna 9a)
-
-Antes de ejecutar, personalizá tu entrega:
-
-- En [`src/prompt_templates.py`](src/prompt_templates.py), reemplazá `EJEMPLOS_FEW_SHOT`
-  por ejemplos de tu propio caso de uso (consigna 1). Si tu justificación de la
-  consigna 3 fue chain-of-thought en lugar de few-shot, cambiá
-  `CONSTRUIR_PROMPT` en `main.py` por `construir_prompt_chain_of_thought`.
-- En [`src/main.py`](src/main.py), reemplazá `CONSULTAS_DE_EJEMPLO` por al menos 3
-  consultas reales de tu caso de uso.
-
-Ejecutá el script (la terminal ya está parada en `unidad1/`):
-
-```bash
-python -m src.main
-```
-
-Vas a ver cada consulta y su respuesta impresas en la terminal, y se genera
-automáticamente un archivo `evidencias.md` con el prompt y la respuesta completa de
-cada una.
-
-### Errores comunes
-
-- `Falta la variable de entorno MODEL_PROVIDER` → no copiaste/completaste el `.env`.
-- `Falta la variable de entorno GROQ_API_KEY` / `GEMINI_API_KEY` → falta esa key en tu
-  `.env`, o elegiste un `MODEL_PROVIDER` distinto al de la key que cargaste.
-- `Proveedor '...' no soportado` → `MODEL_PROVIDER` debe ser exactamente `groq` o
-  `gemini`.
-- `Error code: 404 ... model_not_found` (rama Groq) → el catálogo de modelos de Groq
-  cambia con el tiempo y el modelo pineado puede haber sido discontinuado. Corré en la
-  terminal del Codespace (no expone tu key en el resultado):
-  ```bash
-  curl -s -H "Authorization: Bearer $GROQ_API_KEY" https://api.groq.com/openai/v1/models
-  ```
-  Elegí un `id` vigente de la respuesta y reemplazá `GROQ_MODEL_NAME` en
-  `src/providers/groq_provider.py` por ese valor.
-
-## 6. Ejecutar la rama PEFT (consigna 9b)
-
-Si tu consigna 3 justificó PEFT (LoRA/QLoRA). Colab tiene integración nativa con
-GitHub: **no hace falta subir nada a Google Drive** en ningún paso.
-
-1. Abrí [Google Colab](https://colab.research.google.com) → **Archivo → Abrir notebook
-   → pestaña GitHub** → pegá la URL de **tu propio fork** (o buscá tu usuario + el
-   nombre del repo) → seleccioná `unidad1/notebooks/notebook_peft.ipynb`.
-
-   Alternativa más rápida: armá la URL directo en el navegador, reemplazando
-   `TU-USUARIO` por tu usuario de GitHub:
+3. **Dependencias.** `requirements.txt` registra solo las de la rama elegida: `python-dotenv` y
+   `groq` (versiones fijas). Si hiciera falta: `pip install -r requirements.txt`.
+4. **Ejecución.**
+   ```bash
+   python -m src.main
    ```
-   https://colab.research.google.com/github/TU-USUARIO/ucaece-sem-cd2-act/blob/master/unidad1/notebooks/notebook_peft.ipynb
-   ```
-   > Importante: usá **tu fork**, no el repositorio de la cátedra. Si abrís el
-   > original vas a estar trabajando sobre la plantilla, no sobre tu copia.
+   El script procesa cinco mensajes de pacientes, imprime la salida estructurada de cada uno y
+   genera `evidencias.md` con el prompt completo y la respuesta del modelo para cada consulta.
 
-2. Activá GPU: **Entorno de ejecución → Cambiar tipo de entorno de ejecución → GPU (T4)**.
-3. Ejecutá las celdas en orden. El notebook ya viene resuelto de punta a punta con un
-   modelo base (GPT-2) y un dataset de ejemplo genérico.
-4. Reemplazá el dataset de ejemplo (celda marcada `TODO`) por ejemplos propios de tu
-   caso de uso, y ajustá los hiperparámetros marcados con `TODO` si querés experimentar.
-5. Al final del notebook vas a tener una comparación de las respuestas del modelo
-   **antes y después** del ajuste con LoRA — esa comparación es tu evidencia para la
-   consigna 9b.
-6. Guardá el resultado en tu repositorio con **Archivo → Guardar una copia en GitHub**
-   (la primera vez te va a pedir autorizar la conexión Colab↔GitHub). Elegí tu fork,
-   la rama `master` y la misma ruta `unidad1/notebooks/notebook_peft.ipynb`, y confirmá
-   — Colab commitea el notebook ejecutado (con outputs) directo a tu repositorio, sin
-   pasar por Drive ni por el Codespace.
+## Evidencias
 
-## 7. Registrar y entregar (consigna 10)
+- [`evidencias.md`](evidencias.md): mensaje enmascarado, clasificación, prompt enviado y
+  respuesta del modelo para cada una de las cinco consultas.
+- [`docs/diagrama_flujo.png`](docs/diagrama_flujo.png): esquema del flujo completo, desde el
+  mensaje del paciente hasta la respuesta (consigna 5).
 
-1. Commiteá tu código, el notebook ejecutado y `evidencias.md`.
-2. Completá este README (o un archivo aparte) resumiendo: caso de uso elegido, modelo
-   elegido y estrategia de adaptación.
-3. En el documento entregado (Word/PDF con las consignas 1 a 5), incluí el enlace a tu
-   repositorio y capturas de una ejecución exitosa.
-
-## Estructura del repositorio
+## Estructura
 
 ```
-.devcontainer/
-└── unidad1/devcontainer.json         # config de Codespaces para Unidad 1 (Python 3.11)
-                                       # el repo agrupa varias unidades; cada una tiene
-                                       # su propia config bajo .devcontainer/<unidad>/
 unidad1/
-├── .env.example                      # variables de entorno esperadas (sin valores reales)
-├── docs/actividad-unidad1.md         # consigna oficial de cátedra
-├── notebooks/notebook_peft.ipynb     # rama PEFT (LoRA), para Google Colab
-├── requirements.txt
+├── .env.example                 # variables esperadas (sin valores reales)
+├── requirements.txt             # python-dotenv + groq
+├── evidencias.md                # generado por python -m src.main
+├── docs/
+│   ├── actividad-unidad1.md     # consigna oficial de la cátedra
+│   ├── diagrama_flujo.png       # esquema del flujo de la solución
+│   └── README_plantilla_catedra.md
+├── notebooks/notebook_peft.ipynb   # rama PEFT de la plantilla (no usada en esta entrega)
 └── src/
-    ├── main.py                       # orquesta: lee config, corre consultas, escribe evidencias
-    ├── prompt_templates.py           # técnicas de prompting (few-shot / chain-of-thought)
+    ├── main.py                  # orquesta: config, enmascarado, consultas, evidencias
+    ├── privacidad.py            # enmascarado de teléfonos, DNI y correos
+    ├── prompt_templates.py      # few-shot con rol, políticas y salida estructurada
     └── providers/
-        ├── base_provider.py          # contrato común: generate(prompt) -> str
-        ├── factory.py                # get_provider(name) según MODEL_PROVIDER
-        ├── groq_provider.py
-        └── gemini_provider.py
+        ├── base_provider.py     # contrato: generate(prompt) -> str, nombre_modelo
+        ├── factory.py           # get_provider(name) según MODEL_PROVIDER
+        ├── groq_provider.py     # Llama 3.3 70B vía Groq (temperatura 0,2)
+        └── gemini_provider.py   # alternativa cerrada de la plantilla (no usada)
 ```

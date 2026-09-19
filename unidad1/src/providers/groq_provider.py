@@ -8,12 +8,16 @@ from src.providers.base_provider import BaseProvider
 
 # --- Constantes del proveedor (nada de "magic strings/numbers" inline) ---
 GROQ_API_KEY_ENV_VAR = "GROQ_API_KEY"
-# Modelo de pesos abiertos servido por Groq (GPT-OSS de OpenAI). El catálogo de modelos
-# de Groq cambia con el tiempo (algunos se dan de baja): si este deja de existir, correr
-# `curl -s -H "Authorization: Bearer $GROQ_API_KEY" https://api.groq.com/openai/v1/models`
-# para ver los modelos vigentes en tu cuenta y actualizar esta constante.
-GROQ_MODEL_NAME = "openai/gpt-oss-20b"
-GROQ_TEMPERATURE = 0.7
+GROQ_MODEL_NAME_ENV_VAR = "GROQ_MODEL_NAME"
+# Modelo de pesos abiertos elegido en la consigna 2 (Llama 3.3 70B de Meta, servido por
+# Groq). El catálogo de Groq cambia con el tiempo: si este id deja de existir, se puede
+# fijar otro con la variable de entorno GROQ_MODEL_NAME sin tocar el código, o listar los
+# vigentes con `curl -s -H "Authorization: Bearer $GROQ_API_KEY" https://api.groq.com/openai/v1/models`.
+GROQ_MODEL_NAME_POR_DEFECTO = "llama-3.3-70b-versatile"
+# Temperatura baja: la tarea es de clasificación y redacción acotada, se busca consistencia.
+GROQ_TEMPERATURE = 0.2
+# Tope de tokens de salida: la respuesta estructurada es corta (cuatro líneas).
+GROQ_MAX_TOKENS = 400
 
 
 class GroqProvider(BaseProvider):
@@ -27,12 +31,14 @@ class GroqProvider(BaseProvider):
                 "Obtené una key gratuita en console.groq.com y agregala a tu archivo .env."
             )
         self._client = Groq(api_key=api_key)
+        self.nombre_modelo = os.environ.get(GROQ_MODEL_NAME_ENV_VAR, GROQ_MODEL_NAME_POR_DEFECTO)
 
     def generate(self, prompt: str) -> str:
         try:
             respuesta = self._client.chat.completions.create(
-                model=GROQ_MODEL_NAME,
+                model=self.nombre_modelo,
                 temperature=GROQ_TEMPERATURE,
+                max_tokens=GROQ_MAX_TOKENS,
                 messages=[{"role": "user", "content": prompt}],
             )
         except Exception as error:

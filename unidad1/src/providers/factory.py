@@ -1,13 +1,12 @@
 """Factory Method simple para instanciar el proveedor según MODEL_PROVIDER.
 
-Único patrón de diseño aprobado en este proyecto (ver CLAUDE.md, sección 1.1).
 `main.py` llama a `get_provider()` una sola vez y no necesita saber nada más
-sobre cómo se construye cada proveedor.
+sobre cómo se construye cada proveedor. Cada proveedor se importa recién
+cuando se lo elige, así solo hace falta tener instalada la librería del
+proveedor que realmente se usa (ver requirements.txt).
 """
 
 from src.providers.base_provider import BaseProvider
-from src.providers.gemini_provider import GeminiProvider
-from src.providers.groq_provider import GroqProvider
 
 # --- Nombres válidos de MODEL_PROVIDER ---
 PROVIDER_GROQ = "groq"
@@ -23,9 +22,11 @@ def get_provider(name: str) -> BaseProvider:
     nombre_normalizado = name.strip().lower()
 
     if nombre_normalizado == PROVIDER_GROQ:
+        from src.providers.groq_provider import GroqProvider
         return GroqProvider()
 
     if nombre_normalizado == PROVIDER_GEMINI:
+        from src.providers.gemini_provider import GeminiProvider
         return GeminiProvider()
 
     raise ValueError(

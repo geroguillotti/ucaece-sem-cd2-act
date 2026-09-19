@@ -24,6 +24,7 @@ class GeminiProvider(BaseProvider):
             )
         genai.configure(api_key=api_key)
         self._model = genai.GenerativeModel(GEMINI_MODEL_NAME)
+        self.nombre_modelo = GEMINI_MODEL_NAME
 
     def generate(self, prompt: str) -> str:
         try:

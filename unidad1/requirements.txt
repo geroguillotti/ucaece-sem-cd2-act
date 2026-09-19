@@ -1,3 +1,6 @@
+# Rama elegida: modelo de pesos abiertos (Llama) vía Groq + prompt engineering.
+# Solo se instalan las dependencias necesarias para esa rama (consigna 8).
 python-dotenv==1.0.1
 groq==1.7.0
-google-generativeai==0.8.3
+# Si se quisiera probar la rama Gemini (modelo cerrado), instalar además:
+#   pip install google-generativeai==0.8.3
