@@ -1,8 +1,6 @@
 # Actividad Formativa — Unidad 1
 
-Texto de referencia completo de la actividad, para que Claude Code tenga trazabilidad
-exacta con el documento oficial de cátedra. Este archivo es importado desde `CLAUDE.md`
-mediante `@docs/actividad-unidad1.md`.
+Texto de referencia completo de la actividad, copiado del documento oficial de cátedra.
 
 **CARRERA:** Licenciatura en Ciencia de Datos
 **MATERIA:** Seminario de Ciencia de Datos II
