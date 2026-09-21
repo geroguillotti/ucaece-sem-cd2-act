@@ -1,16 +1,17 @@
 """Minimización de datos personales antes de enviar un mensaje al modelo.
 
-Los mensajes de pacientes pueden traer teléfonos, DNI, números de afiliado o
-correos. Como el modelo se consume vía una API externa, se enmascaran esos datos
-antes de construir el prompt: el modelo no los necesita para clasificar la
-intención ni para redactar la respuesta, y así nunca salen del sistema propio.
+Los mensajes de pacientes pueden traer teléfonos, DNI o correos. Como el modelo se
+consume vía una API externa, se enmascaran esos datos antes de construir el
+prompt: el modelo no los necesita para clasificar la intención ni para redactar
+la respuesta, y así nunca salen del sistema propio.
 """
 
 import re
 
 # --- Patrones de datos personales frecuentes en mensajes de pacientes ---
 PATRON_TELEFONO = re.compile(r"(?:\+?54\s?)?(?:9\s?)?(?:\(?\d{2,4}\)?[\s.-]?)?\d{3,4}[\s.-]?\d{4}")
-PATRON_DNI = re.compile(r"\b\d{1,2}[.\s]?\d{3}[.\s]?\d{3}\b")
+# Un monto como "$ 1.500.000" no es un DNI: solo se enmascaran números sueltos con ese formato.
+PATRON_DNI = re.compile(r"(?<!\$)(?<!\$ )\b\d{1,2}[.\s]?\d{3}[.\s]?\d{3}\b")
 PATRON_CORREO = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
 
 MARCA_TELEFONO = "[TELÉFONO]"

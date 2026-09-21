@@ -7,8 +7,9 @@ prompt fija el rol del asistente, las políticas del negocio, el formato exacto
 de la salida y varios ejemplos resueltos que muestran cómo se espera que el
 modelo clasifique y responda. Ningún parámetro del modelo se modifica.
 
-Se conserva también una variante chain-of-thought por si se quisiera
-comparar el comportamiento con razonamiento explícito.
+Se conserva la variante chain-of-thought que trae la plantilla de la cátedra,
+con el mismo formato de salida, para poder comparar ambas técnicas; no se usa
+en esta entrega.
 """
 
 # --- Datos del negocio (caso hipotético, nombres y direcciones ficticios) ---
@@ -112,7 +113,7 @@ EJEMPLOS_FEW_SHOT = [
 
 INSTRUCCION_CHAIN_OF_THOUGHT = (
     "Antes de responder, pensá el problema paso a paso en voz alta. "
-    "Al final, escribí la respuesta definitiva precedida por 'Respuesta:'."
+    "Al final, escribí la salida definitiva con el formato indicado."
 )
 
 
@@ -125,12 +126,13 @@ def formatear_ejemplos(ejemplos: list[dict]) -> str:
     return "\n\n".join(bloques)
 
 
-def construir_prompt_few_shot(consulta: str, ejemplos: list[dict] = EJEMPLOS_FEW_SHOT) -> str:
+def construir_prompt_few_shot(consulta: str, ejemplos: list[dict] | None = None) -> str:
     """Arma el prompt few-shot completo: rol, políticas, formato, ejemplos y consulta.
 
     El modelo debe continuar el patrón de los ejemplos para el mensaje nuevo,
     respetando exactamente el formato de salida.
     """
+    ejemplos = EJEMPLOS_FEW_SHOT if ejemplos is None else ejemplos
     return (
         f"{INSTRUCCION_ROL}\n\n"
         f"Políticas de {NOMBRE_NEGOCIO}:\n{POLITICAS_NEGOCIO}\n\n"
@@ -148,6 +150,7 @@ def construir_prompt_chain_of_thought(consulta: str) -> str:
     return (
         f"{INSTRUCCION_ROL}\n\n"
         f"Políticas de {NOMBRE_NEGOCIO}:\n{POLITICAS_NEGOCIO}\n\n"
+        f"Formato de salida (respetalo exactamente):\n{FORMATO_SALIDA}\n\n"
         f"{INSTRUCCION_CHAIN_OF_THOUGHT}\n\n"
         f"Mensaje del paciente: {consulta}"
     )

@@ -1,6 +1,6 @@
-# Unidad 1: Asistente de primera respuesta para una clínica odontológica
+# Unidad 1 — Asistente de primera respuesta para una clínica odontológica
 
-**Entrega individual de Geronimo Guillotti** · Seminario de Ciencia de Datos II · Licenciatura en
+**Entrega individual de Gerónimo Guillotti** · Seminario de Ciencia de Datos II · Licenciatura en
 Ciencia de Datos (CAECE) · 2do cuatrimestre 2026.
 
 Este directorio contiene el componente práctico (consignas 6 a 10) de la Actividad Formativa 1.

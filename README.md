@@ -1,4 +1,4 @@
-# Seminario de Ciencia de Datos II: entregas de Geronimo Guillotti
+# Seminario de Ciencia de Datos II — entregas de Gerónimo Guillotti
 
 Fork del repositorio de actividades de la cátedra (Licenciatura en Ciencia de Datos, CAECE,
 2do cuatrimestre 2026). Cada unidad vive en su propia carpeta con su propio entorno de

@@ -19,6 +19,7 @@ from dotenv import load_dotenv
 
 from src.privacidad import enmascarar_datos_personales
 from src.prompt_templates import construir_prompt_few_shot
+from src.providers.base_provider import BaseProvider
 from src.providers.factory import get_provider
 
 # --- Constantes del script (nada de "magic strings/numbers" inline) ---
@@ -26,17 +27,19 @@ MODEL_PROVIDER_ENV_VAR = "MODEL_PROVIDER"
 EVIDENCIAS_FILE_PATH = "evidencias.md"
 CAMPO_DERIVACION = "Derivar a humano"
 CAMPO_INTENCION = "Intención"
-# El nivel gratuito de Groq limita los tokens por minuto (8.000 TPM para gpt-oss-120b);
-# cada consulta usa ~1.500 tokens, así que se espacian las llamadas para no superar el límite.
-PAUSA_ENTRE_CONSULTAS_SEGUNDOS = 15
+VALOR_NO_INFORMADO = "no informado"
+CARACTERES_DECORATIVOS = "*-• "
+FORMATO_FECHA_EVIDENCIAS = "%Y-%m-%d %H:%M UTC"
+# Groq gratis deja 8.000 tokens por minuto. Cada consulta manda ~1.200 tokens de prompt más la
+# salida, así que espacio las llamadas a tres por minuto para no pasarme.
+PAUSA_ENTRE_CONSULTAS_SEGUNDOS = 20
 
-# Técnica de prompting elegida y justificada en la consigna 3: few-shot con rol,
-# políticas del negocio y salida estructurada.
+# Técnica elegida en la consigna 3: few-shot con rol, políticas del negocio y salida estructurada.
 CONSTRUIR_PROMPT = construir_prompt_few_shot
 
-# Mensajes reales de ejemplo del caso de uso (consigna 1): pacientes de una
-# clínica odontológica escribiendo por WhatsApp. Cubren turnos, urgencias,
-# coberturas, reclamos y un caso con datos personales que se enmascaran.
+# Mensajes inventados para el caso de la consigna 1: pacientes de una clínica odontológica
+# escribiendo por WhatsApp. Hay turnos, una urgencia, coberturas, un reclamo y uno con
+# teléfono para ver cómo se enmascara.
 CONSULTAS_DE_EJEMPLO = [
     "Buenas, quería saber si atienden Galeno y si tienen turno para ortodoncia la semana que viene a la mañana",
     "Mi hijo de 8 años se cayó en el colegio y se le aflojó un diente de adelante, está sangrando un poco. Hay que ir ya?",
@@ -58,34 +61,40 @@ def leer_proveedor_configurado() -> str:
 
 
 def extraer_campo(respuesta: str, nombre_campo: str) -> str:
-    """Devuelve el valor de una línea 'Campo: valor' de la salida estructurada."""
+    """Devuelve el valor de una línea 'Campo: valor' de la salida estructurada.
+
+    Tolera viñetas, negritas de Markdown y espacios antes de los dos puntos.
+    """
     for linea in respuesta.splitlines():
-        if linea.strip().lower().startswith(nombre_campo.lower() + ":"):
-            return linea.split(":", 1)[1].strip()
-    return "no informado"
+        linea_limpia = linea.strip(CARACTERES_DECORATIVOS).replace(" :", ":").lower()
+        if linea_limpia.startswith(nombre_campo.lower() + ":"):
+            return linea_limpia.split(":", 1)[1].strip(CARACTERES_DECORATIVOS)
+    return VALOR_NO_INFORMADO
 
 
-def ejecutar_consulta(provider, consulta: str) -> tuple[str, str, str]:
-    """Enmascara datos personales, arma el prompt y devuelve (consulta segura, prompt, respuesta)."""
+def ejecutar_consulta(provider: BaseProvider, consulta: str) -> tuple[str, str, str, str]:
+    """Enmascara datos personales, arma el prompt y devuelve (consulta segura, prompt, respuesta, tokens)."""
     consulta_segura = enmascarar_datos_personales(consulta)
     prompt = CONSTRUIR_PROMPT(consulta_segura)
     respuesta = provider.generate(prompt)
-    return consulta_segura, prompt, respuesta
+    tokens = f"{provider.tokens_entrada} / {provider.tokens_salida}"
+    return consulta_segura, prompt, respuesta, tokens
 
 
-def escribir_evidencias(resultados: list[tuple[str, str, str]], proveedor: str, modelo: str) -> None:
+def escribir_evidencias(resultados: list[tuple[str, str, str, str]], proveedor: str, modelo: str) -> None:
     """Vuelca consulta, prompt y respuesta de cada ejecución a un archivo Markdown."""
-    fecha = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    fecha = datetime.now(timezone.utc).strftime(FORMATO_FECHA_EVIDENCIAS)
     lineas = [
         "# Evidencias de ejecución\n",
         f"- **Proveedor:** {proveedor}\n- **Modelo:** {modelo}\n- **Fecha de ejecución:** {fecha}\n",
         "- **Técnica de prompting:** few-shot con instrucciones de rol y salida estructurada\n",
     ]
-    for numero, (consulta, prompt, respuesta) in enumerate(resultados, start=1):
+    for numero, (consulta, prompt, respuesta, tokens) in enumerate(resultados, start=1):
         lineas.append(f"## Consulta {numero}\n")
         lineas.append(f"**Mensaje del paciente (con datos personales enmascarados):** {consulta}\n")
         lineas.append(f"**Clasificación:** intención = {extraer_campo(respuesta, CAMPO_INTENCION)} · "
                       f"derivar a humano = {extraer_campo(respuesta, CAMPO_DERIVACION)}\n")
+        lineas.append(f"**Tokens (entrada / salida, incluido el razonamiento):** {tokens}\n")
         lineas.append(f"**Prompt enviado al modelo:**\n\n```\n{prompt}\n```\n")
         lineas.append(f"**Respuesta del modelo:**\n\n```\n{respuesta}\n```\n")
 
@@ -101,15 +110,18 @@ def main() -> None:
     print(f"Proveedor: {proveedor_configurado} · Modelo: {provider.nombre_modelo}\n")
 
     resultados = []
-    for numero, consulta in enumerate(CONSULTAS_DE_EJEMPLO, start=1):
-        if numero > 1:
-            time.sleep(PAUSA_ENTRE_CONSULTAS_SEGUNDOS)
-        consulta_segura, prompt, respuesta = ejecutar_consulta(provider, consulta)
-        resultados.append((consulta_segura, prompt, respuesta))
-        print(f"[{numero}] Mensaje: {consulta_segura}\n{respuesta}\n")
-
-    escribir_evidencias(resultados, proveedor_configurado, provider.nombre_modelo)
-    print(f"Evidencias guardadas en {EVIDENCIAS_FILE_PATH}")
+    try:
+        for numero, consulta in enumerate(CONSULTAS_DE_EJEMPLO, start=1):
+            if numero > 1:
+                time.sleep(PAUSA_ENTRE_CONSULTAS_SEGUNDOS)
+            consulta_segura, prompt, respuesta, tokens = ejecutar_consulta(provider, consulta)
+            resultados.append((consulta_segura, prompt, respuesta, tokens))
+            print(f"[{numero}] Mensaje: {consulta_segura}\n{respuesta}\n(tokens entrada / salida: {tokens})\n")
+    finally:
+        # Si una consulta falla igual guardo las anteriores, para no perder la corrida entera.
+        if resultados:
+            escribir_evidencias(resultados, proveedor_configurado, provider.nombre_modelo)
+            print(f"Evidencias guardadas en {EVIDENCIAS_FILE_PATH}")
 
 
 if __name__ == "__main__":
