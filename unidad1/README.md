@@ -1,7 +1,7 @@
-# Unidad 1 — Asistente de primera respuesta para una clínica odontológica
+# Unidad 1: Asistente de primera respuesta para una clínica odontológica
 
-**Entrega individual de Gerónimo Guillotti** · Seminario de Ciencia de Datos II · Licenciatura en
-Ciencia de Datos (CAECE) · 2do cuatrimestre 2026.
+**Entrega individual de Geronimo Guillotti** · Seminario de Ciencia de Datos II · Licenciatura en
+Ciencia de Datos (CAECE) · 2.º cuatrimestre de 2026.
 
 Este directorio contiene el componente práctico (consignas 6 a 10) de la Actividad Formativa 1.
 El diseño conceptual (consignas 1 a 5) está en el informe entregado por el campus. Se partió de
@@ -67,11 +67,13 @@ antes de enviar cada mensaje se enmascaran teléfonos, DNI y correos (`src/priva
    python -m src.main
    ```
    El script procesa cinco mensajes de pacientes, imprime la salida estructurada de cada uno y
-   genera `evidencias.md` con el prompt completo y la respuesta del modelo para cada consulta.
+   genera `evidencias.md` con el prompt completo, la respuesta del modelo y los tokens consumidos
+   por consulta. Espera 20 segundos entre consultas para respetar el límite de 8.000 tokens por
+   minuto del nivel gratuito de Groq, así que la corrida completa tarda menos de dos minutos.
 
 ## Evidencias
 
-- [`evidencias.md`](evidencias.md): mensaje enmascarado, clasificación, prompt enviado y
+- [`evidencias.md`](evidencias.md): mensaje enmascarado, clasificación, tokens, prompt enviado y
   respuesta del modelo para cada una de las cinco consultas.
 - [`docs/diagrama_flujo.png`](docs/diagrama_flujo.png): esquema del flujo completo, desde el
   mensaje del paciente hasta la respuesta (consigna 5).
@@ -81,20 +83,23 @@ antes de enviar cada mensaje se enmascaran teléfonos, DNI y correos (`src/priva
 ```
 unidad1/
 ├── .env.example                 # variables esperadas (sin valores reales)
+├── .gitignore                   # excluye .env, .venv y cachés
 ├── requirements.txt             # python-dotenv + groq
-├── evidencias.md                # generado por python -m src.main
+├── evidencias.md                # generado por python -m src.main (versionado)
 ├── docs/
 │   ├── actividad-unidad1.md     # consigna oficial de la cátedra
 │   ├── diagrama_flujo.png       # esquema del flujo de la solución
+│   ├── Guia_Paso_a_Paso_Estudiante_Unidad1.docx   # guía de la cátedra
 │   └── README_plantilla_catedra.md
 ├── notebooks/notebook_peft.ipynb   # rama PEFT de la plantilla (no usada en esta entrega)
-└── src/
+└── src/                         # paquetes Python con __init__.py vacíos
     ├── main.py                  # orquesta: config, enmascarado, consultas, evidencias
     ├── privacidad.py            # enmascarado de teléfonos, DNI y correos
     ├── prompt_templates.py      # few-shot con rol, políticas y salida estructurada
     └── providers/
-        ├── base_provider.py     # contrato: generate(prompt) -> str, nombre_modelo
+        ├── base_provider.py     # contrato: generate(prompt) -> str, nombre_modelo, tokens
         ├── factory.py           # get_provider(name) según MODEL_PROVIDER
         ├── groq_provider.py     # gpt-oss-120b vía Groq (temperatura 0,2, razonamiento bajo)
-        └── gemini_provider.py   # alternativa cerrada de la plantilla (no usada)
+        └── gemini_provider.py   # alternativa cerrada de la plantilla (no usada; id actualizado
+                                 # porque gemini-1.5-flash fue retirado)
 ```
