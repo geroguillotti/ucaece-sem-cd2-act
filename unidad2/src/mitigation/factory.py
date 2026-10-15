@@ -1,9 +1,8 @@
 """Factory Method simple para instanciar la técnica de mitigación configurada.
 
-Único patrón de diseño aprobado en este proyecto (ver CLAUDE.md raíz, sección
-1.1), replicando intencionalmente `get_provider()` de la Unidad 1. `main.py`
-llama a `resolver_metodos()` una sola vez y no necesita saber nada más sobre
-cómo se construye cada mitigador.
+Único patrón de diseño usado en este proyecto, replicando intencionalmente
+`get_provider()` de la Unidad 1. `main.py` llama a `resolver_metodos()` una
+sola vez y no necesita saber nada más sobre cómo se construye cada mitigador.
 """
 
 from sklearn.base import BaseEstimator

@@ -1,8 +1,8 @@
 """Contrato común que deben cumplir las técnicas de mitigación de Fairlearn.
 
-No se usa `abc.ABC` a propósito (ver CLAUDE.md raíz, sección 1.1): con dos
-técnicas alcanza con una clase simple que documente el contrato y falle de
-forma clara si alguien olvida implementarlo.
+No se usa `abc.ABC` a propósito: con dos técnicas alcanza con una clase
+simple que documente el contrato y falle de forma clara si alguien olvida
+implementarlo.
 """
 
 
