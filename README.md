@@ -7,3 +7,4 @@ Codespaces bajo `.devcontainer/<unidad>/`.
 | Unidad | Actividad | Carpeta |
 |---|---|---|
 | 1 | Asistente de primera respuesta para una clínica odontológica con gpt-oss-120b (pesos abiertos, vía Groq) y few-shot prompting | [`unidad1/`](unidad1/README.md) |
+| 2 | Auditoría de equidad de un filtro de currículums al estilo Amazon: sesgo de género con datos del censo de EE. UU., mitigación con Fairlearn y explicaciones con SHAP | [`unidad2/`](unidad2/README.md) |
