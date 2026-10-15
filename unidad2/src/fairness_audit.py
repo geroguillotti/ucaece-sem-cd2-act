@@ -12,18 +12,25 @@ import pandas as pd
 from fairlearn.metrics import (
     MetricFrame,
     demographic_parity_difference,
+    demographic_parity_ratio,
+    equal_opportunity_difference,
     equalized_odds_difference,
     selection_rate,
 )
 from sklearn.metrics import accuracy_score
 
-# TODO estudiante (opcional): sumá acá una métrica de equidad adicional de
-# fairlearn.metrics para enriquecer la comparación de la consigna 9.c. Cada
-# función debe aceptar (y_true, y_pred, sensitive_features=...). Ejemplo:
-#
-# from fairlearn.metrics import equalized_odds_ratio
-# METRICAS_EXTRA = {"equalized_odds_ratio": equalized_odds_ratio}
-METRICAS_EXTRA: dict = {}
+# Métricas extra (punto opcional de la consigna 9.c). Cada función acepta
+# (y_true, y_pred, sensitive_features=...).
+# - demographic_parity_ratio: tasa de selección del grupo menos seleccionado
+#   dividida por la del más seleccionado; es la heurística de los "cuatro
+#   quintos" (< 0,8 indica impacto adverso) usada en selección de personal.
+# - equal_opportunity_difference: brecha de tasa de verdaderos positivos, es
+#   decir, de personas que sí trabajan en tecnología y el modelo descarta: el
+#   daño del caso Amazon (candidatas calificadas filtradas).
+METRICAS_EXTRA = {
+    "demographic_parity_ratio": demographic_parity_ratio,
+    "equal_opportunity_difference": equal_opportunity_difference,
+}
 
 
 @dataclass

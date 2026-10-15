@@ -8,6 +8,7 @@ Este archivo no implementa detalles de ninguna etapa: cada paso vive en su
 propio módulo dentro de src/.
 """
 
+import numpy as np
 from dotenv import load_dotenv
 
 from src.config import Config, cargar_configuracion
@@ -24,6 +25,10 @@ from src.plots import (
 )
 
 # --- Constantes del script ---
+# ExponentiatedGradient y ThresholdOptimizer devuelven predicciones
+# aleatorizadas y usan el generador global de numpy: fijar su semilla hace que
+# dos corridas con la misma configuración den exactamente las mismas métricas.
+SEMILLA_GLOBAL = 42
 NOMBRE_ESCENARIO_BASE = "Modelo base (sin mitigar)"
 NOMBRES_ESCENARIO_POR_METODO = {
     "exponentiated_gradient": "ExponentiatedGradient",
@@ -50,6 +55,7 @@ def _auditar_mitigaciones(datos: DatosEntrenamiento, config: Config) -> list[Res
 
 def main() -> None:
     load_dotenv()
+    np.random.seed(SEMILLA_GLOBAL)
 
     config = cargar_configuracion()
     dataframe = cargar_datos(config)
