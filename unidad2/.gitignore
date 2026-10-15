@@ -1,0 +1,31 @@
+# Variables de entorno (nunca subir claves de API)
+.env
+
+# Datasets del estudiante (no versionar; solo el dataset demo se descarga en runtime)
+data/*
+!data/.gitkeep
+
+# Bytecode y cachés de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Jupyter / Colab
+.ipynb_checkpoints/
+
+# Editores / SO
+.vscode/
+.DS_Store
+
+# Empaquetado
+*.egg-info/
+build/
+dist/
+
+# Evidencias generadas en corridas previas (se conserva solo la última en el repo)
+evidencias.anterior.md
