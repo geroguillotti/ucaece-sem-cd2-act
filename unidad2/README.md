@@ -46,17 +46,19 @@ reconoce.
 | ExponentiatedGradient | 0,897 | 0,056 | 0,017 | 0,092 / 0,035 | 0,332 / 0,337 |
 | ThresholdOptimizer | 0,889 | 0,031 | 0,007 | 0,058 / 0,027 | 0,220 / 0,213 |
 
-El modelo base no solo copia la brecha de los datos, la agranda. Selecciona al 1,1 % de las mujeres
-contra el 12,8 % de los hombres (un cociente de 0,085, lejísimos del 0,8 de la regla de los cuatro
-quintos) y reconoce apenas al 12,4 % de las mujeres que sí trabajan en tecnología, contra el 43,3 %
-de los hombres. En SHAP, `genero_Mujer` aparece como la variable con más peso del modelo.
+El modelo base no solo copia la desproporción de los datos, la agranda. Selecciona al 1,1 % de las
+mujeres contra el 12,8 % de los hombres (un cociente de 0,085, cuando en los datos es de 0,29 y la
+regla de los cuatro quintos pide 0,8) y reconoce apenas al 12,4 % de las mujeres que sí trabajan en
+tecnología, contra el 43,3 % de los hombres. En SHAP, `genero_Mujer` aparece como la variable con más
+peso del modelo.
 
 Sacar la columna de género no resuelve el problema: la diferencia se mantiene a través de
-`campo_titulo`, que está bastante asociada al género (V de Cramér de 0,43). Es lo mismo que le pasó
-a Amazon cuando neutralizó la palabra "women's". ExponentiatedGradient con equalized odds deja el
-TPR prácticamente igual entre géneros (0,332 y 0,337) sin perder casi exactitud. Con demographic
-parity, en cambio, se iguala la tasa de selección pero a costa de desordenar los errores; esa
-comparación está en [`outputs/analisis_complementario.md`](outputs/analisis_complementario.md).
+`campo_titulo`, que está bastante asociada al género (V de Cramér de 0,43). Es el mismo riesgo que
+Reuters señalaba para Amazon: neutralizar la palabra "women's" no garantizaba que el sistema dejara
+de discriminar. ExponentiatedGradient con equalized odds deja el TPR prácticamente igual entre
+géneros (0,332 y 0,337) sin perder casi exactitud. Con demographic parity, en cambio, se acercan las
+tasas de selección (cociente de 0,63) pero a costa de desordenar los errores; esa comparación está en
+[`outputs/analisis_complementario.md`](outputs/analisis_complementario.md).
 
 La interpretación completa está en [`evidencias.md`](evidencias.md).
 
