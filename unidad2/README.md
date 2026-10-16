@@ -11,7 +11,7 @@ de la plantilla de la cátedra, cuyas instrucciones originales quedaron en
 ## Caso analizado
 
 Herramienta experimental de reclutamiento de Amazon, discontinuada al detectarse que penalizaba a las
-candidatas mujeres. Según Reuters (Dastin, 2018), los modelos se habían entrenado con diez años de
+candidatas mujeres. Según la investigación de Reuters de 2018, los modelos se habían entrenado con diez años de
 currículums recibidos por la empresa, en su mayoría de hombres. La práctica reproduce ese mecanismo de
 sesgo histórico con datos reales: un clasificador entrenado con el registro de quién ocupa hoy un puesto
 de tecnología, usado como filtro de candidatos.
