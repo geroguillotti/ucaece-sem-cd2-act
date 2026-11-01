@@ -81,7 +81,7 @@ mismo que la API local, incluido `modelo-u3 v1 (@champion)`, porque la imagen ll
 
 > Con `modelo-u3:1.0` y `modelo-u3:1.1` se pueden levantar dos contenedores a la vez, cada uno con su versión del modelo
 > adentro, sin tocar el que está en producción. Para el canary release elegido en la consigna 3 alcanzaría con poner
-> adelante un balanceador que mande una parte chica del tráfico, por ejemplo el 10 %, al contenedor 1.1 y el resto al
+> adelante un balanceador que mande una parte chica del tráfico, por ejemplo el 20 %, al contenedor 1.1 y el resto al
 > 1.0, comparar errores, latencia y respuestas, e ir subiendo el porcentaje si todo va bien. Si algo falla se vuelve todo
 > al 1.0, que sigue corriendo igual. Como cada respuesta trae el campo `modelo`, se sabe qué versión contestó cada pedido.
 
