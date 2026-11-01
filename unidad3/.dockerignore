@@ -12,4 +12,3 @@ resultados.md
 .gitignore
 .dockerignore
 .env.example
-CLAUDE.md

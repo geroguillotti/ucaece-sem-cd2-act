@@ -1,9 +1,5 @@
 # Actividad Formativa — Unidad 3: Tendencias Actuales en Implementación y Despliegue de Modelos (MLOps/LLMOps)
 
-Texto de referencia completo de la actividad, para que Claude Code tenga trazabilidad
-exacta con el documento oficial de cátedra. Este archivo es importado desde `CLAUDE.md`
-mediante `@docs/actividad-unidad3.md`.
-
 **CARRERA:** Licenciatura en Ciencia de Datos
 **MATERIA:** Seminario de Ciencia de Datos II
 **CUATRIMESTRE Y AÑO:** 2do Cuatrimestre 2026
