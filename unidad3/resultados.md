@@ -89,11 +89,18 @@ mismo que la API local, incluido `modelo-u3 v1 (@champion)`, porque la imagen ll
 
 ## Paso opcional: LLMOps con Groq
 
+Comparación de las plantillas zero-shot y few-shot con `openai/gpt-oss-20b` en Groq (temperatura 0, seis reseñas),
+registrada en el experimento `u3-llmops-prompts` con una traza por llamada gracias a `mlflow.groq.autolog()`. La clave
+de Groq se cargó como secreto de Codespaces, sin escribirla en ningún archivo del repositorio.
+
 | Plantilla | tasa_exito | tokens_totales | latencia_media_s |
 |-----------|------------|----------------|------------------|
-| zero_shot |            |                |                  |
-| few_shot  |            |                |                  |
+| zero_shot | 1,000 | 1059 | 0,293 |
+| few_shot  | 1,000 | 1137 | 0,250 |
 
 ![LLMOps](capturas/opcional_llmops.png)
 
-> Escribí acá tu interpretación (2 a 3 líneas).
+> Las dos plantillas acertaron las seis reseñas, así que con un conjunto tan fácil los ejemplos no mejoran la tasa de
+> aciertos y solo suman costo: few-shot usó 78 tokens más, un 7 % más. La diferencia de latencia (0,250 contra 0,293 s)
+> entra en la variación entre llamadas, que en las trazas va de 179 a 396 ms. Para justificar los ejemplos haría falta
+> evaluar con casos difíciles, como reseñas irónicas o mixtas.

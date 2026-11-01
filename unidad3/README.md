@@ -37,7 +37,8 @@ Con un solo corte el árbol separa setosa pero confunde versicolor con virginica
 una sola flor de las 45, y más profundidad no ayuda: con 4 y 5 el árbol se ajusta a detalles del
 entrenamiento y empeora en test. La API respondió setosa, versicolor y virginica a una flor típica de cada
 especie, y devolvió 422 sin llegar al modelo ante un valor no numérico y dos campos faltantes. El
-contenedor dio la misma predicción que la API local.
+contenedor dio la misma predicción que la API local. En el paso opcional de LLMOps, las plantillas zero-shot y few-shot
+acertaron las seis reseñas de prueba y few-shot consumió 78 tokens más.
 
 ## Cómo ejecutar
 
@@ -65,6 +66,11 @@ contenedor dio la misma predicción que la API local.
    docker build -t modelo-u3:1.0 .
    docker run --rm -p 8000:8000 modelo-u3:1.0
    ```
+6. **LLMOps (opcional).** Necesita una API key de Groq, cargada como secreto de Codespaces con el nombre
+   `GROQ_API_KEY` o en un archivo `.env` creado a partir de `.env.example`. Con MLflow corriendo:
+   ```bash
+   python -m src.comparar_prompts
+   ```
 
 `mlflow.db`, `mlartifacts/` y `modelo_exportado/` se generan al ejecutar estos pasos y no se versionan.
 
@@ -73,7 +79,8 @@ contenedor dio la misma predicción que la API local.
 - [`resultados.md`](resultados.md): tabla de corridas, versión registrada, predicciones de la API y
   respuestas breves de las consignas 7.d, 8.d y 9.c.
 - [`capturas/`](capturas/): entorno, comparación de corridas y modelo registrado en MLflow,
-  documentación y predicciones de la API, y predicción contra el contenedor.
+  documentación y predicciones de la API, predicción contra el contenedor y comparación de prompts con
+  sus trazas.
 
 ## Cambios respecto de la plantilla
 
