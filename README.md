@@ -8,3 +8,4 @@ Codespaces bajo `.devcontainer/<unidad>/`.
 |---|---|---|
 | 1 | Asistente de primera respuesta para una clínica odontológica con gpt-oss-120b (pesos abiertos, vía Groq) y few-shot prompting | [`unidad1/`](unidad1/README.md) |
 | 2 | Auditoría de equidad de un filtro de currículums al estilo Amazon: sesgo de género con datos del censo de EE. UU., mitigación con Fairlearn y explicaciones con SHAP | [`unidad2/`](unidad2/README.md) |
+| 3 | Pipeline de MLOps sobre Iris: experimentos y registro con MLflow, API con FastAPI e imagen Docker; el diseño para el asistente de la Unidad 1 está en el informe | [`unidad3/`](unidad3/README.md) |
