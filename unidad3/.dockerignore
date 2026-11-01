@@ -1,0 +1,15 @@
+.env
+mlflow.db
+mlartifacts/
+mlruns/
+__pycache__/
+*.pyc
+*.pyo
+capturas/
+docs/
+resultados.md
+*.md
+.gitignore
+.dockerignore
+.env.example
+CLAUDE.md

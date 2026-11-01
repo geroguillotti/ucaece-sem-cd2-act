@@ -1,0 +1,27 @@
+{
+  "name": "unidad3-seminario-cd2",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}/unidad3",
+  "postCreateCommand": "pip install --upgrade pip && pip install -r requirements.txt",
+  "containerEnv": {
+    "MLFLOW_DISABLE_AGENT_HINT": "1",
+    "MLFLOW_SERVER_ALLOWED_HOSTS": "*.app.github.dev,localhost:*,127.0.0.1:*",
+    "MLFLOW_SERVER_CORS_ALLOWED_ORIGINS": "https://*.app.github.dev"
+  },
+  "forwardPorts": [5000, 8000],
+  "portsAttributes": {
+    "5000": { "label": "MLflow UI", "onAutoForward": "notify" },
+    "8000": { "label": "API FastAPI", "onAutoForward": "notify" }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  }
+}

@@ -1,0 +1,8 @@
+.env
+mlflow.db
+mlartifacts/
+mlruns/
+modelo_exportado/
+__pycache__/
+*.pyc
+*.pyo
